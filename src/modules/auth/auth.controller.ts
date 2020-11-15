@@ -1,10 +1,7 @@
 import { Body, Controller, Post, UseGuards, Request } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { LocalAuthGuard } from 'src/guards/local.guard';
+import { LocalAuthGuard } from 'src/modules/auth/guards/local.guard';
 import { AuthorizedUser } from 'src/interfaces/user.interface';
-import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
-import { LoginDto } from './dto/login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -16,4 +13,10 @@ export class AuthController {
     async loginUser(@Request() req){
         return await this.authService.login(req.user);
     }
+
+    @Post('restore-token')
+    async generateAccessToken(@Body('refresh_token') refresh_token: string): Promise<AuthorizedUser>{
+        return await this.authService.restorToken(refresh_token);
+    }
+    
 }

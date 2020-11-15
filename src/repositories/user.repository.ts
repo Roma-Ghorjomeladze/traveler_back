@@ -20,4 +20,15 @@ export class UserRepository extends BaseRepository<UserEntity> {
         }
         return true;
     }
+
+    async findByUsername(username: string): Promise<any>{
+        const qb = this.createQueryBuilder('u');
+        qb.where('u.username = :username', {username})
+        qb.select([
+            'u.username as username',
+            'u.password as password',
+            'u.id as id',
+        ])
+        return await qb.getRawOne();
+    }
 }
