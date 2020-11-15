@@ -7,8 +7,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     canActivate(ctx: ExecutionContext){
         const request = ctx.switchToHttp().getRequest();
         const path = request.route.path
-        console.log({path});
-        
         if(whiteList.includes(path)){
             Logger.warn('guard whitelisted path');
             return true;
