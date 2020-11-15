@@ -12,4 +12,9 @@ export class UserController {
     async createUser(@Body() userDto: UserDto): Promise<UserEntity>{
        return await this.userService.saveUser(userDto);
     }
+
+    @Post('test')
+    async test(){
+        return {working: true}
+    }
 }

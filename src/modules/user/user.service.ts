@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserRepository } from 'src/repositories/user.repository';
 import { UserDto } from './dto/user.dto';
 import {hash, compare} from 'bcrypt';
 import { UserEntity } from 'src/entities/user.entity';
 import { IsNull } from 'typeorm';
+import { UserInterface } from 'src/interfaces/user.interface';
 
 @Injectable()
 export class UserService {
@@ -13,6 +14,10 @@ export class UserService {
     ){}
 
     async saveUser(userDto: UserDto){
+        const duplicate = await this.findByUsername(userDto.username);
+        if(duplicate){
+            throw new HttpException('user with such username already exists', HttpStatus.CONFLICT)
+        }
         userDto.password = await this.setPasswordHash(userDto.password);
         return await this.userRepository.saveUser(userDto);
     }
@@ -27,5 +32,9 @@ export class UserService {
 
     async findByUsername(username: string): Promise<UserEntity | undefined>{
         return await this.userRepository.findOne({where: {username, deleted_at: IsNull()}});
+    }
+
+    async findWithPassword(username: string): Promise<UserInterface>{
+        return await this.userRepository.findByUsername(username);
     }
 }
