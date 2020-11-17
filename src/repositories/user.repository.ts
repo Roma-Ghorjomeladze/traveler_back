@@ -1,16 +1,16 @@
 import { UserEntity } from "src/entities/user.entity";
 import { UserDto } from "src/modules/user/dto/user.dto";
-import { EntityRepository, IsNull } from "typeorm";
+import { EntityManager, EntityRepository, IsNull } from 'typeorm';
 import { BaseRepository } from "./base.repository";
 
 @EntityRepository(UserEntity)
 export class UserRepository extends BaseRepository<UserEntity> {
     
-    async saveUser(dto: UserDto): Promise<UserEntity>{
+    async saveUser(dto: UserDto, entityManager: EntityManager): Promise<UserEntity>{
         const user = new UserEntity();
         user.username = dto.username;
         user.password = dto.password;
-        return await this.save(user);
+        return await entityManager.getRepository(UserEntity).save(user);
     }
 
     async isUsernameValid(username: string): Promise<boolean>{

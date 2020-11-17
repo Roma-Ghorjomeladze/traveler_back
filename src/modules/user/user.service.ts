@@ -4,13 +4,15 @@ import { UserRepository } from 'src/repositories/user.repository';
 import { UserDto } from './dto/user.dto';
 import {hash, compare} from 'bcrypt';
 import { UserEntity } from 'src/entities/user.entity';
-import { IsNull } from 'typeorm';
+import { getConnection, IsNull } from 'typeorm';
 import { UserInterface } from 'src/interfaces/user.interface';
+import { ProfileRepository } from '../../repositories/profile.repository';
 
 @Injectable()
 export class UserService {
     constructor(
-        @InjectRepository(UserRepository) private userRepository: UserRepository
+        @InjectRepository(UserRepository) private userRepository: UserRepository,
+        @InjectRepository(ProfileRepository) private profileRepository: ProfileRepository
     ){}
 
     async saveUser(userDto: UserDto){
@@ -19,7 +21,13 @@ export class UserService {
             throw new HttpException('user with such username already exists', HttpStatus.CONFLICT)
         }
         userDto.password = await this.setPasswordHash(userDto.password);
-        return await this.userRepository.saveUser(userDto);
+        const user = await getConnection().transaction(async (entityManager) => {
+            const user = await this.userRepository.saveUser(userDto, entityManager);
+            const profile = await this.profileRepository.saveProfile(userDto, user.id, entityManager);
+            user.profile = profile;
+            return user;
+        })
+        return user;
     }
 
     async setPasswordHash(plainPassword: string): Promise<string>{
@@ -36,5 +44,9 @@ export class UserService {
 
     async findWithPassword(username: string): Promise<UserInterface>{
         return await this.userRepository.findByUsername(username);
+    }
+
+    async fetchProfiles(){
+        return await this.profileRepository.find();
     }
 }
