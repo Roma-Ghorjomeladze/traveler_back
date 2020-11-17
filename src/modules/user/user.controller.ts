@@ -5,16 +5,14 @@ import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {
-    constructor(
-        private userService: UserService
-    ){}
-    @Post('create')
-    async createUser(@Body() userDto: UserDto): Promise<UserEntity>{
-       return await this.userService.saveUser(userDto);
-    }
+  constructor(private userService: UserService) {}
+  @Post('create')
+  async createUser(@Body() userDto: UserDto): Promise<UserEntity> {
+    return await this.userService.saveUser(userDto);
+  }
 
-    @Post('test')
-    async test(){
-        return {working: true}
-    }
+  @Post('test')
+  async test() {
+    return await this.userService.fetchProfiles();
+  }
 }
