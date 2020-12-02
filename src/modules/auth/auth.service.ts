@@ -34,11 +34,11 @@ export class AuthService {
     const payload: JwtPayload = { username: user.username, sub: user.id };
     delete user.password;
     return {
-      access_token: this.jwtService.sign(payload, {
+      access_token: 'Bearer ' + this.jwtService.sign(payload, {
         expiresIn: '1d',
         secret: process.env.JWT_SECRET,
       }),
-      refresh_token: this.jwtService.sign(payload, {
+      refresh_token: 'Bearer ' + this.jwtService.sign(payload, {
         expiresIn: '7d',
         secret: process.env.REFRESH_TOKEN_SECRET,
       }),
